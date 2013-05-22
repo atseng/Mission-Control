@@ -4,17 +4,33 @@ class MissionControlCommand
   end
 
   def self.check_in_path
-    ENV['HOME'] + '/.check_in'
+    ENV['HOME'] + '/check_in'
+  end
+
+  def time_spent 
+  end
+
+  def delete_file
   end
 
   def output
+    time = Time.now.strftime '%l:%M %p'
     if @cmd == 'in'
-      File.open(self.class.check_in_path, 'w') do |f|
-        f.puts 'checkedin'
+      if FileTest.exists?(self.class.check_in_path)
+        'Already signed in'
+      else
+        File.open(self.class.check_in_path, 'w') { |f| f.puts time }
+        'You are checked in as of ' + time
       end
-      'You are checked in'
-    else
-      'You are checked out'
+    elsif @cmd == 'out'
+      if FileTest.exists?(self.class.check_in_path) == false
+        'Already signed out'
+      else
+        File.delete(ENV['HOME'] + '/check_in')
+        puts 'You are checked out as of ' + time
+        puts 'Total time spent ' + time_spent
+      end
+
     end
   end
 end
